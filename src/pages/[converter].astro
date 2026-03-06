@@ -1,0 +1,72 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Converter from '../components/Converter.astro';
+
+export function getStaticPaths() {
+	const formats = ['base64', 'base32', 'base58', 'base85', 'binary', 'octal', 'decimal', 'hex'];
+	const paths = [];
+	for (const from of formats) {
+		for (const to of formats) {
+			if (from !== to) {
+				paths.push({
+					params: { converter: `${from}-to-${to}` },
+					props: { from, to },
+				});
+			}
+		}
+	}
+	return paths;
+}
+
+const { from, to } = Astro.props;
+const fromLabel = from.charAt(0).toUpperCase() + from.slice(1);
+const toLabel = to.charAt(0).toUpperCase() + to.slice(1);
+const title = `${fromLabel} to ${toLabel} — Online Converter`;
+const description = `Free online ${from} to ${to} converter. Convert between ${from} and ${to} formats instantly.`;
+---
+
+<Layout title={title} description={description}>
+	<Converter
+		title={`${fromLabel} → ${toLabel}`}
+		fromLabel={fromLabel}
+		toLabel={toLabel}
+		converterId={`${from}-to-${to}`}
+	/>
+</Layout>
+
+<script is:inline type="application/json" id="converter-config" set:html={JSON.stringify({ from, to })}></script>
+
+<script>
+	import { convert } from '../scripts/encodings.js';
+
+	function init() {
+		const configEl = document.getElementById('converter-config');
+		const config = configEl ? JSON.parse(configEl.textContent) : null;
+		if (!config) return;
+		const { from, to } = config;
+		const formId = `${from}-to-${to}`;
+		const form = document.getElementById(formId);
+		if (!form) return;
+
+		function runConvert() {
+			const input = form.querySelector('#input');
+			const output = form.querySelector('#output');
+			if (!input || !output) return;
+			try {
+				const val = input.value.trim();
+				output.value = val ? convert(from, to, val) : '';
+			} catch {
+				output.value = 'Error: invalid ' + from + ' data';
+			}
+		}
+
+		form.addEventListener('submit', (e) => { e.preventDefault(); runConvert(); });
+		form.querySelector('#input')?.addEventListener('input', runConvert);
+	}
+
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', init);
+	} else {
+		init();
+	}
+</script>

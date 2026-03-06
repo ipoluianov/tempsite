@@ -1,11 +1,215 @@
 ---
-import Welcome from '../components/Welcome.astro';
 import Layout from '../layouts/Layout.astro';
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+const FORMATS = ['base64', 'base32', 'base58', 'base85', 'binary', 'octal', 'decimal', 'hex'];
 ---
 
-<Layout>
-	<Welcome />
+<Layout title="BitKit — The Ultimate Toolkit for Ciphers and Data" description="Over 500+ tools to decode, convert, and calculate. Fast, free, and built for developers.">
+	<header class="hero">
+		<h1>BitKit — The Ultimate Toolkit for Ciphers and Data</h1>
+		<p class="subtext">Over 500+ tools to decode, convert, and calculate. Fast, free, and built for developers.</p>
+		<a href="#tools" class="cta">Explore All Tools</a>
+	</header>
+
+	<nav id="tools" class="converter-nav">
+		<div class="columns">
+			<div class="column" id="source-column">
+				<p class="column-label">Source</p>
+				<div class="format-list">
+					{FORMATS.map((f, i) => (
+						<button
+							type="button"
+							class={`format-btn ${i === 0 ? 'selected' : ''}`}
+							data-format={f}
+						>
+							{f.charAt(0).toUpperCase() + f.slice(1)}
+						</button>
+					))}
+				</div>
+			</div>
+			<div class="column">
+				<p class="column-label">Destination</p>
+				<div class="format-list" id="target-formats">
+					{FORMATS.map((to) => {
+						const isDisabled = to === FORMATS[0];
+						return isDisabled ? (
+							<span class="format-btn format-btn-disabled">
+								{to.charAt(0).toUpperCase() + to.slice(1)}
+							</span>
+						) : (
+							<a href={`/${FORMATS[0]}-to-${to}/`} class="format-btn format-btn-link">
+								{to.charAt(0).toUpperCase() + to.slice(1)}
+							</a>
+						);
+					})}
+				</div>
+			</div>
+		</div>
+	</nav>
 </Layout>
+
+<script define:vars={{ formats: FORMATS }}>
+	document.addEventListener('DOMContentLoaded', () => {
+		const targetFormats = document.getElementById('target-formats');
+		const sourceBtns = document.querySelectorAll('#source-column .format-btn[data-format]');
+
+		function renderTargets(from) {
+			targetFormats.innerHTML = formats
+				.map(
+					(to) => {
+						const label = to.charAt(0).toUpperCase() + to.slice(1);
+						if (to === from) {
+							return `<span class="format-btn format-btn-disabled">${label}</span>`;
+						}
+						return `<a href="/${from}-to-${to}/" class="format-btn format-btn-link">${label}</a>`;
+					}
+				)
+				.join('');
+		}
+
+		sourceBtns.forEach((btn) => {
+			btn.addEventListener('click', () => {
+				sourceBtns.forEach((b) => b.classList.remove('selected'));
+				btn.classList.add('selected');
+				renderTargets(btn.dataset.format);
+			});
+		});
+	});
+</script>
+
+<style>
+	.hero {
+		text-align: center;
+		padding: 2rem 0 2.5rem;
+	}
+
+	.hero h1 {
+		font-size: clamp(1.75rem, 4vw, 2.25rem);
+		font-weight: 600;
+		margin: 0 0 0.75rem;
+		letter-spacing: -0.02em;
+		line-height: 1.2;
+	}
+
+	.subtext {
+		color: var(--text-muted);
+		font-size: 1rem;
+		max-width: 32ch;
+		margin: 0 auto 1.5rem;
+		line-height: 1.5;
+	}
+
+	.cta {
+		display: inline-block;
+		padding: 0.75rem 1.5rem;
+		background: var(--accent);
+		color: white;
+		text-decoration: none;
+		font-weight: 500;
+		border-radius: 8px;
+		transition: background 0.2s;
+	}
+
+	.cta:hover {
+		background: var(--accent-hover);
+	}
+
+	#tools {
+		scroll-margin-top: 4rem;
+	}
+
+	.converter-nav {
+		width: 100%;
+		display: flex;
+		justify-content: center;
+	}
+
+	.columns {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 3rem;
+		max-width: 900px;
+	}
+
+	@media (max-width: 700px) {
+		.columns {
+			grid-template-columns: 1fr;
+			max-width: 420px;
+		}
+	}
+
+	.column {
+		display: flex;
+		flex-direction: column;
+		gap: 1.5rem;
+	}
+
+	.column-label {
+		font-size: 1.1rem;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		color: var(--text-muted);
+		margin: 0;
+	}
+
+	.format-list {
+		display: grid;
+		grid-template-rows: repeat(8, 2.75rem);
+		gap: 0.625rem;
+	}
+
+	.format-list :global(.format-btn),
+	.format-list :global(.format-btn-link),
+	.format-list :global(.format-btn-disabled) {
+		display: flex;
+		align-items: center;
+		width: 100%;
+		height: 2.75rem;
+		padding: 0 2rem;
+		overflow: hidden;
+		box-sizing: border-box;
+		background: var(--surface);
+		border: 1px solid var(--border);
+		border-radius: 16px;
+		color: var(--text);
+		font-family: inherit;
+		font-size: 1.4rem;
+		font-weight: 500;
+		text-align: left;
+		transition: background 0.2s, border-color 0.2s, color 0.2s;
+	}
+
+	.format-list :global(.format-btn),
+	.format-list :global(.format-btn-link) {
+		cursor: pointer;
+		text-decoration: none;
+	}
+
+	.format-list :global(button.format-btn) {
+		appearance: none;
+		-webkit-appearance: none;
+	}
+
+	.format-list :global(.format-btn-disabled) {
+		opacity: 0.4;
+		cursor: default;
+		pointer-events: none;
+	}
+
+	.format-list :global(.format-btn:hover),
+	.format-list :global(.format-btn-link:hover) {
+		border-color: var(--accent);
+		background: rgba(34, 197, 94, 0.08);
+	}
+
+	.format-list :global(.format-btn.selected) {
+		border-color: var(--accent);
+		background: rgba(34, 197, 94, 0.12);
+		color: var(--accent);
+	}
+
+	.format-list :global(.format-btn-link:active) {
+		transform: scale(0.99);
+	}
+</style>
