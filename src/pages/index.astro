@@ -131,10 +131,24 @@ const FORMATS = ['base64', 'base32', 'base58', 'base85', 'binary', 'octal', 'dec
 		max-width: 900px;
 	}
 
-	@media (max-width: 700px) {
+	@media (max-width: 600px) {
+		.columns {
+			gap: 1rem;
+			max-width: 100%;
+		}
+		.format-list :global(.format-btn),
+		.format-list :global(.format-btn-link),
+		.format-list :global(.format-btn-disabled) {
+			padding: 0 0.75rem;
+			font-size: 1.15rem;
+		}
+	}
+
+	@media (max-width: 360px) {
 		.columns {
 			grid-template-columns: 1fr;
-			max-width: 420px;
+			max-width: 280px;
+			gap: 2rem;
 		}
 	}
 
